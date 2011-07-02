@@ -18,6 +18,7 @@ import logging
 
 from bson.son import SON
 
+import tornado.web
 import helpers
 import message
 import functools
@@ -49,6 +50,8 @@ class Cursor(object):
         def wrapper(*args, **kwargs):
             try:
                 return callback(*args, **kwargs)
+            except tornado.web.HTTPError, e:
+                raise e
             except Exception, e:
                 logging.error("Exception in callback",
                               exc_info=True)
@@ -402,6 +405,8 @@ class Cursor(object):
                     orig_callback(result['data'][0], error=None)
                 else:
                     orig_callback(result['data'], error=None)
+        except tornado.web.HTTPError, e:
+            raise e
         except:
             logging.exception('callback failed')
     
